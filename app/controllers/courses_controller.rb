@@ -10,6 +10,14 @@ class CoursesController < ApplicationController
     #  #@q = Course.ransack(params[:q])
     #  #@courses = @q.result.includes(:user)
     #end
+
+    #if current_user.has_role?(:admin)
+    #  @ransack_courses = Course.ransack(params[:courses_search], search_key: :courses_search)
+    #  @courses = @ransack_courses.result.includes(:user)
+    #else
+    #  redirect_to root_path, alert: 'You do not have access'
+    #end
+
     @ransack_courses = Course.ransack(params[:courses_search], search_key: :courses_search)
     @courses = @ransack_courses.result.includes(:user)
   end
@@ -19,13 +27,16 @@ class CoursesController < ApplicationController
 
   def new
     @course = Course.new
+    authorize @course
   end
 
   def edit
+    authorize @course
   end
 
   def create
     @course = Course.new(course_params)
+    authorize @course
     @course.user = current_user
 
     respond_to do |format|
@@ -40,6 +51,7 @@ class CoursesController < ApplicationController
   end
 
   def update
+    authorize @course
     respond_to do |format|
       if @course.update(course_params)
         format.html { redirect_to @course, notice: 'Course was successfully updated.' }
@@ -52,6 +64,7 @@ class CoursesController < ApplicationController
   end
 
   def destroy
+    authorize @course
     @course.destroy
     respond_to do |format|
       format.html { redirect_to courses_url, notice: 'Course was successfully destroyed.' }
